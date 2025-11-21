@@ -147,7 +147,7 @@ export default function App() {
     alert('Solicitação criada com sucesso!');
   };
 
-  const aceitarSolicitacao = (id, nomeAlinhador) => {
+  const aceitarSolicitacao = (id: number, nomeAlinhador: string) => {
     setSolicitacoes(solicitacoes.map(s => 
       s.id === id 
         ? { ...s, status: 'Em Andamento', alinhador: nomeAlinhador, horaInicio: new Date().toLocaleTimeString('pt-BR') }
@@ -155,7 +155,7 @@ export default function App() {
     ));
   };
 
-  const finalizarSolicitacao = (id, sucesso, obs = '') => {
+  const finalizarSolicitacao = (id: number, sucesso: boolean, obs: string = '') => {
     setSolicitacoes(solicitacoes.map(s => 
       s.id === id 
         ? { 
@@ -168,7 +168,7 @@ export default function App() {
     ));
   };
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: string) => {
     if (status === 'Pendente') return '🕐';
     if (status === 'Em Andamento') return '▶️';
     if (status === 'Finalizada') return '✅';
@@ -176,7 +176,7 @@ export default function App() {
     return '⏳';
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     if (status === 'Pendente') return 'bg-gray-400';
     if (status === 'Em Andamento') return 'bg-blue-500';
     if (status === 'Finalizada') return 'bg-green-500';
@@ -208,7 +208,7 @@ export default function App() {
     }
   };
 
-  const removerItem = (tipo, index) => {
+  const removerItem = (tipo: string, index: number) => {
     if (confirm('Tem certeza que deseja remover este item?')) {
       if (tipo === 'solicitante') {
         setSolicitantes(solicitantes.filter((_, i) => i !== index));
@@ -220,7 +220,7 @@ export default function App() {
     }
   };
 
-  const iniciarEdicao = (tipo, index, valor) => {
+  const iniciarEdicao = (tipo: string, index: number, valor: string) => {
     setEditandoItem({ tipo, index, valor });
   };
 
