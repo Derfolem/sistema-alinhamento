@@ -229,7 +229,7 @@ export default function App() {
   };
 
   const salvarEdicao = () => {
-    if (editandoItem.valor.trim()) {
+    if (editandoItem.valor.trim() && editandoItem.index !== null) {
       if (editandoItem.tipo === 'solicitante') {
         const novos = [...solicitantes];
         novos[editandoItem.index] = editandoItem.valor.trim();
