@@ -53,7 +53,11 @@ interface Solicitacao {
   horaInicio: string | null;
   horaFim: string | null;
 }
-
+interface EditandoItem {
+  tipo: string | null;
+  index: number | null;
+  valor: string;
+}
 export default function App() {
   const [tela, setTela] = useState('solicitante');
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
@@ -77,7 +81,7 @@ export default function App() {
   const [novoSolicitante, setNovoSolicitante] = useState('');
   const [novoAlinhador, setNovoAlinhador] = useState('');
   const [novaManobra, setNovaManobra] = useState('');
-  const [editandoItem, setEditandoItem] = useState({ tipo: null, index: null, valor: '' });
+  const [editandoItem, setEditandoItem] = useState<EditandoItem>({ tipo: null, index: null, valor: '' });
 
   useEffect(() => {
     const dados = localStorage.getItem('solicitacoes');
