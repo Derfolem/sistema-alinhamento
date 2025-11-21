@@ -38,10 +38,25 @@ const TURNOS = {
   2: '15:00 - 00:00',
   3: '00:00 - 07:00'
 };
+interface Solicitacao {
+  id: number;
+  nome: string;
+  setor: string;
+  operacao: string;
+  descricao: string;
+  turno: number;
+  horario: string;
+  data: string;
+  status: string;
+  alinhador: string | null;
+  observacao: string;
+  horaInicio: string | null;
+  horaFim: string | null;
+}
 
 export default function App() {
   const [tela, setTela] = useState('solicitante');
-  const [solicitacoes, setSolicitacoes] = useState([]);
+  const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
   const [nome, setNome] = useState('');
   const [setor, setSetor] = useState('');
   const [operacao, setOperacao] = useState('');
