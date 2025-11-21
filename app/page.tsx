@@ -2,6 +2,21 @@
 
 import React, { useState, useEffect } from 'react';
 
+interface Solicitacao {
+  id: number;
+  nome: string;
+  setor: string;
+  operacao: string;
+  descricao: string;
+  turno: number;
+  horario: string;
+  data: string;
+  status: string;
+  alinhador: string | null;
+  observacao: string;
+  horaInicio: string | null;
+  horaFim: string | null;
+}
 // Configurações de Cores
 const CORES_SETORES = {
   'Movis Automática': 'bg-blue-500',
