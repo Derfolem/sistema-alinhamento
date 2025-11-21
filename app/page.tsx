@@ -575,7 +575,7 @@ export default function App() {
               <tbody className="divide-y divide-gray-200">
                 {solicitacoesFiltradas.length === 0 ? (
                   <tr>
-                    <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
                       Nenhuma solicitação encontrada
                     </td>
                   </tr>
