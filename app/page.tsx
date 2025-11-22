@@ -569,13 +569,14 @@ export default function App() {
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Descrição</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Alinhador</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Motivo Ofensor</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Tempo</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {solicitacoesFiltradas.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
                       Nenhuma solicitação encontrada
                     </td>
                   </tr>
@@ -605,14 +606,18 @@ export default function App() {
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`${getStatusColor(sol.status)} text-white px-2 py-1 rounded text-xs flex items-center gap-1 w-fit`}>
-                          <span>{getStatusIcon(sol.status)}</span>
-                          {sol.status}
-                        </span>
-                        {sol.observacao && (
-                          <p className="text-xs text-red-600 mt-1 font-semibold">Motivo: {sol.observacao}</p>
-                        )}
-                      </td>
+  <span className={`${getStatusColor(sol.status)} text-white px-2 py-1 rounded text-xs flex items-center gap-1 w-fit`}>
+    <span>{getStatusIcon(sol.status)}</span>
+    {sol.status}
+  </span>
+</td>
+<td className="px-4 py-3">
+  {sol.observacao ? (
+    <span className="text-sm text-red-600 font-semibold">{sol.observacao}</span>
+  ) : (
+    <span className="text-gray-400 text-xs">-</span>
+  )}
+</td>
                       <td className="px-4 py-3 text-sm">
                         {sol.horaInicio && sol.horaFim && (
                           <span className="text-xs text-gray-600">
@@ -706,6 +711,7 @@ export default function App() {
             <h3 className="text-lg font-bold text-gray-800 mb-4">Gerenciar Alinhadores</h3>
             <div className="flex gap-2 mb-4">
               <input
+                key="input-alinhador"
                 type="text"
                 value={novoAlinhador}
                 onChange={(e) => setNovoAlinhador(e.target.value)}
@@ -771,6 +777,7 @@ export default function App() {
             <h3 className="text-lg font-bold text-gray-800 mb-4">Gerenciar Tipos de Manobra</h3>
             <div className="flex gap-2 mb-4">
               <input
+                key="input-manobra"
                 type="text"
                 value={novaManobra}
                 onChange={(e) => setNovaManobra(e.target.value)}
