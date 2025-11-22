@@ -17,7 +17,13 @@ interface Solicitacao {
   horaInicio: string | null;
   horaFim: string | null;
 }
-// Configurações de Cores
+
+interface EditandoItem {
+  tipo: string | null;
+  index: number | null;
+  valor: string;
+}
+
 const CORES_SETORES = {
   'Movis Automática': 'bg-blue-500',
   'Movis Manual': 'bg-cyan-500',
@@ -38,26 +44,7 @@ const TURNOS = {
   2: '15:00 - 00:00',
   3: '00:00 - 07:00'
 };
-interface Solicitacao {
-  id: number;
-  nome: string;
-  setor: string;
-  operacao: string;
-  descricao: string;
-  turno: number;
-  horario: string;
-  data: string;
-  status: string;
-  alinhador: string | null;
-  observacao: string;
-  horaInicio: string | null;
-  horaFim: string | null;
-}
-interface EditandoItem {
-  tipo: string | null;
-  index: number | null;
-  valor: string;
-}
+
 export default function App() {
   const [tela, setTela] = useState('solicitante');
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
@@ -82,6 +69,7 @@ export default function App() {
   const [novoAlinhador, setNovoAlinhador] = useState('');
   const [novaManobra, setNovaManobra] = useState('');
   const [editandoItem, setEditandoItem] = useState<EditandoItem>({ tipo: null, index: null, valor: '' });
+  const [inputEmEdicao, setInputEmEdicao] = useState('');
 
   useEffect(() => {
     const dados = localStorage.getItem('solicitacoes');
@@ -222,36 +210,6 @@ export default function App() {
         setTiposManobra(tiposManobra.filter((_, i) => i !== index));
       }
     }
-  };
-
-  const iniciarEdicao = (tipo: string, index: number, valor: string) => {
-    setEditandoItem({ tipo, index, valor });
-  };
-
-  const salvarEdicao = () => {
-    if (editandoItem.valor.trim() && editandoItem.index !== null) {
-      if (editandoItem.tipo === 'solicitante') {
-        const novos = [...solicitantes];
-        novos[editandoItem.index] = editandoItem.valor.trim();
-        setSolicitantes(novos);
-      } else if (editandoItem.tipo === 'alinhador') {
-        const novos = [...alinhadores];
-        const antigoNome = novos[editandoItem.index];
-        novos[editandoItem.index] = editandoItem.valor.trim();
-        setAlinhadores(novos);
-        
-        const novaCor = coresAlinhadores[antigoNome];
-        const novasCores = {...coresAlinhadores};
-        delete novasCores[antigoNome];
-        novasCores[editandoItem.valor.trim()] = novaCor;
-        setCoresAlinhadores(novasCores);
-      } else if (editandoItem.tipo === 'manobra') {
-        const novos = [...tiposManobra];
-        novos[editandoItem.index] = editandoItem.valor.trim();
-        setTiposManobra(novos);
-      }
-    }
-    setEditandoItem({ tipo: null, index: null, valor: '' });
   };
 
   const TelaSolicitante = () => (
@@ -606,18 +564,18 @@ export default function App() {
                         )}
                       </td>
                       <td className="px-4 py-3">
-  <span className={`${getStatusColor(sol.status)} text-white px-2 py-1 rounded text-xs flex items-center gap-1 w-fit`}>
-    <span>{getStatusIcon(sol.status)}</span>
-    {sol.status}
-  </span>
-</td>
-<td className="px-4 py-3">
-  {sol.observacao ? (
-    <span className="text-sm text-red-600 font-semibold">{sol.observacao}</span>
-  ) : (
-    <span className="text-gray-400 text-xs">-</span>
-  )}
-</td>
+                        <span className={`${getStatusColor(sol.status)} text-white px-2 py-1 rounded text-xs flex items-center gap-1 w-fit`}>
+                          <span>{getStatusIcon(sol.status)}</span>
+                          {sol.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        {sol.observacao ? (
+                          <span className="text-sm text-red-600 font-semibold">{sol.observacao}</span>
+                        ) : (
+                          <span className="text-gray-400 text-xs">-</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-sm">
                         {sol.horaInicio && sol.horaFim && (
                           <span className="text-xs text-gray-600">
@@ -636,6 +594,83 @@ export default function App() {
     );
   };
 
+  const InputEditavel = ({ valor, onSalvar, onCancelar }) => {
+    const [valorLocal, setValorLocal] = React.useState(valor);
+
+    const handleSalvar = () => {
+      if (valorLocal.trim()) {
+        onSalvar(valorLocal.trim());
+      }
+    };
+
+    return (
+      <div className="flex items-center gap-2 flex-1">
+        <input
+          type="text"
+          defaultValue={valor}
+          onChange={(e) => setValorLocal(e.target.value)}
+          className="flex-1 px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSalvar();
+            } else if (e.key === 'Escape') {
+              e.preventDefault();
+              onCancelar();
+            }
+          }}
+          autoFocus
+        />
+        <button
+          onClick={handleSalvar}
+          className="bg-green-600 text-white px-4 py-1 rounded text-sm hover:bg-green-700 whitespace-nowrap"
+        >
+          Salvar
+        </button>
+        <button
+          onClick={onCancelar}
+          className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
+        >
+          ✕
+        </button>
+      </div>
+    );
+  };
+
+  const iniciarEdicao = (tipo: string, index: number, valor: string) => {
+    setEditandoItem({ tipo, index, valor });
+    setInputEmEdicao(valor);
+  };
+
+  const cancelarEdicao = () => {
+    setEditandoItem({ tipo: null, index: null, valor: '' });
+    setInputEmEdicao('');
+  };
+
+  const salvarEdicaoItem = (novoValor: string, tipo: string, index: number) => {
+    if (tipo === 'solicitante') {
+      const novos = [...solicitantes];
+      novos[index] = novoValor;
+      setSolicitantes(novos);
+    } else if (tipo === 'alinhador') {
+      const novos = [...alinhadores];
+      const antigoNome = novos[index];
+      novos[index] = novoValor;
+      setAlinhadores(novos);
+      
+      const novaCor = coresAlinhadores[antigoNome] || 'bg-gray-500';
+      const novasCores = {...coresAlinhadores};
+      delete novasCores[antigoNome];
+      novasCores[novoValor] = novaCor;
+      setCoresAlinhadores(novasCores);
+    } else if (tipo === 'manobra') {
+      const novos = [...tiposManobra];
+      novos[index] = novoValor;
+      setTiposManobra(novos);
+    }
+    cancelarEdicao();
+  };
+
   const TelaConfiguracoes = () => (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="bg-white rounded-lg shadow-lg p-6">
@@ -649,13 +684,17 @@ export default function App() {
             <h3 className="text-lg font-bold text-gray-800 mb-4">Gerenciar Solicitantes</h3>
             <div className="flex gap-2 mb-4">
               <input
-                  key="input-solicitante"
-                  type="text"
-                  value={novoSolicitante}
-                  onChange={(e) => setNovoSolicitante(e.target.value)}
-                  placeholder="Nome do solicitante"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  onKeyPress={(e) => e.key === 'Enter' && adicionarSolicitante()}
+                type="text"
+                value={novoSolicitante}
+                onChange={(e) => setNovoSolicitante(e.target.value)}
+                placeholder="Nome do solicitante"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    adicionarSolicitante();
+                  }
+                }}
               />
               <button
                 onClick={adicionarSolicitante}
@@ -666,23 +705,13 @@ export default function App() {
             </div>
             <div className="space-y-2">
               {solicitantes.map((sol, index) => (
-                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                <div key={`sol-${index}`} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
                   {editandoItem.tipo === 'solicitante' && editandoItem.index === index ? (
-                    <>
-                      <input
-                        type="text"
-                        value={editandoItem.valor}
-                        onChange={(e) => setEditandoItem({...editandoItem, valor: e.target.value})}
-                        className="flex-1 px-3 py-1 border border-gray-300 rounded"
-                        onKeyPress={(e) => e.key === 'Enter' && salvarEdicao()}
-                      />
-                      <button
-                        onClick={salvarEdicao}
-                        className="ml-2 bg-green-600 text-white px-4 py-1 rounded text-sm hover:bg-green-700"
-                      >
-                        Salvar
-                      </button>
-                    </>
+                    <InputEditavel
+                      valor={sol}
+                      onSalvar={(novoValor) => salvarEdicaoItem(novoValor, 'solicitante', index)}
+                      onCancelar={cancelarEdicao}
+                    />
                   ) : (
                     <>
                       <span className="text-gray-800">{sol}</span>
@@ -711,13 +740,17 @@ export default function App() {
             <h3 className="text-lg font-bold text-gray-800 mb-4">Gerenciar Alinhadores</h3>
             <div className="flex gap-2 mb-4">
               <input
-                key="input-alinhador"
                 type="text"
                 value={novoAlinhador}
                 onChange={(e) => setNovoAlinhador(e.target.value)}
                 placeholder="Nome do alinhador"
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                onKeyPress={(e) => e.key === 'Enter' && adicionarAlinhador()}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    adicionarAlinhador();
+                  }
+                }}
               />
               <button
                 onClick={adicionarAlinhador}
@@ -728,23 +761,13 @@ export default function App() {
             </div>
             <div className="space-y-2">
               {alinhadores.map((alin, index) => (
-                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                <div key={`alin-${index}`} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
                   {editandoItem.tipo === 'alinhador' && editandoItem.index === index ? (
-                    <>
-                      <input
-                        type="text"
-                        value={editandoItem.valor}
-                        onChange={(e) => setEditandoItem({...editandoItem, valor: e.target.value})}
-                        className="flex-1 px-3 py-1 border border-gray-300 rounded"
-                        onKeyPress={(e) => e.key === 'Enter' && salvarEdicao()}
-                      />
-                      <button
-                        onClick={salvarEdicao}
-                        className="ml-2 bg-green-600 text-white px-4 py-1 rounded text-sm hover:bg-green-700"
-                      >
-                        Salvar
-                      </button>
-                    </>
+                    <InputEditavel
+                      valor={alin}
+                      onSalvar={(novoValor) => salvarEdicaoItem(novoValor, 'alinhador', index)}
+                      onCancelar={cancelarEdicao}
+                    />
                   ) : (
                     <>
                       <div className="flex items-center gap-3">
@@ -777,13 +800,17 @@ export default function App() {
             <h3 className="text-lg font-bold text-gray-800 mb-4">Gerenciar Tipos de Manobra</h3>
             <div className="flex gap-2 mb-4">
               <input
-                key="input-manobra"
                 type="text"
                 value={novaManobra}
                 onChange={(e) => setNovaManobra(e.target.value)}
                 placeholder="Tipo de manobra"
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                onKeyPress={(e) => e.key === 'Enter' && adicionarManobra()}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    adicionarManobra();
+                  }
+                }}
               />
               <button
                 onClick={adicionarManobra}
@@ -794,23 +821,13 @@ export default function App() {
             </div>
             <div className="space-y-2">
               {tiposManobra.map((man, index) => (
-                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                <div key={`man-${index}`} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
                   {editandoItem.tipo === 'manobra' && editandoItem.index === index ? (
-                    <>
-                      <input
-                        type="text"
-                        value={editandoItem.valor}
-                        onChange={(e) => setEditandoItem({...editandoItem, valor: e.target.value})}
-                        className="flex-1 px-3 py-1 border border-gray-300 rounded"
-                        onKeyPress={(e) => e.key === 'Enter' && salvarEdicao()}
-                      />
-                      <button
-                        onClick={salvarEdicao}
-                        className="ml-2 bg-green-600 text-white px-4 py-1 rounded text-sm hover:bg-green-700"
-                      >
-                        Salvar
-                      </button>
-                    </>
+                    <InputEditavel
+                      valor={man}
+                      onSalvar={(novoValor) => salvarEdicaoItem(novoValor, 'manobra', index)}
+                      onCancelar={cancelarEdicao}
+                    />
                   ) : (
                     <>
                       <span className="text-gray-800">{man}</span>
