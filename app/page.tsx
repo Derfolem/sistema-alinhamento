@@ -18,12 +18,6 @@ interface Solicitacao {
   horaFim: string | null;
 }
 
-interface EditandoItem {
-  tipo: string | null;
-  index: number | null;
-  valor: string;
-}
-
 const CORES_SETORES = {
   'Movis Automática': 'bg-blue-500',
   'Movis Manual': 'bg-cyan-500',
@@ -68,8 +62,6 @@ export default function App() {
   const [novoSolicitante, setNovoSolicitante] = useState('');
   const [novoAlinhador, setNovoAlinhador] = useState('');
   const [novaManobra, setNovaManobra] = useState('');
-  const [editandoItem, setEditandoItem] = useState<EditandoItem>({ tipo: null, index: null, valor: '' });
-  const [inputEmEdicao, setInputEmEdicao] = useState('');
 
   useEffect(() => {
     const dados = localStorage.getItem('solicitacoes');
@@ -705,32 +697,24 @@ export default function App() {
             </div>
             <div className="space-y-2">
               {solicitantes.map((sol, index) => (
-                <div key={`sol-${index}`} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                  {editandoItem.tipo === 'solicitante' && editandoItem.index === index ? (
-                    <InputEditavel
-                      valor={sol}
-                      onSalvar={(novoValor) => salvarEdicaoItem(novoValor, 'solicitante', index)}
-                      onCancelar={cancelarEdicao}
-                    />
-                  ) : (
-                    <>
-                      <span className="text-gray-800">{sol}</span>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => iniciarEdicao('solicitante', index, sol)}
-                          className="text-blue-600 hover:text-blue-700 p-1"
-                        >
-                          <span>✏️</span>
-                        </button>
-                        <button
-                          onClick={() => removerItem('solicitante', index)}
-                          className="text-red-600 hover:text-red-700 p-1"
-                        >
-                          <span>🗑️</span>
-                        </button>
-                      </div>
-                    </>
-                  )}
+                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                  <span className="text-gray-800">{sol}</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => editarItem('solicitante', index, sol)}
+                      className="text-blue-600 hover:text-blue-700 p-1"
+                      title="Editar"
+                    >
+                      <span>✏️</span>
+                    </button>
+                    <button
+                      onClick={() => removerItem('solicitante', index)}
+                      className="text-red-600 hover:text-red-700 p-1"
+                      title="Remover"
+                    >
+                      <span>🗑️</span>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -761,36 +745,28 @@ export default function App() {
             </div>
             <div className="space-y-2">
               {alinhadores.map((alin, index) => (
-                <div key={`alin-${index}`} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                  {editandoItem.tipo === 'alinhador' && editandoItem.index === index ? (
-                    <InputEditavel
-                      valor={alin}
-                      onSalvar={(novoValor) => salvarEdicaoItem(novoValor, 'alinhador', index)}
-                      onCancelar={cancelarEdicao}
-                    />
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-3">
-                        <span className={`${coresAlinhadores[alin]} text-white px-3 py-1 rounded text-sm`}>
-                          {alin}
-                        </span>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => iniciarEdicao('alinhador', index, alin)}
-                          className="text-blue-600 hover:text-blue-700 p-1"
-                        >
-                          <span>✏️</span>
-                        </button>
-                        <button
-                          onClick={() => removerItem('alinhador', index)}
-                          className="text-red-600 hover:text-red-700 p-1"
-                        >
-                          <span>🗑️</span>
-                        </button>
-                      </div>
-                    </>
-                  )}
+                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <span className={`${coresAlinhadores[alin]} text-white px-3 py-1 rounded text-sm`}>
+                      {alin}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => editarItem('alinhador', index, alin)}
+                      className="text-blue-600 hover:text-blue-700 p-1"
+                      title="Editar"
+                    >
+                      <span>✏️</span>
+                    </button>
+                    <button
+                      onClick={() => removerItem('alinhador', index)}
+                      className="text-red-600 hover:text-red-700 p-1"
+                      title="Remover"
+                    >
+                      <span>🗑️</span>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -821,32 +797,24 @@ export default function App() {
             </div>
             <div className="space-y-2">
               {tiposManobra.map((man, index) => (
-                <div key={`man-${index}`} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                  {editandoItem.tipo === 'manobra' && editandoItem.index === index ? (
-                    <InputEditavel
-                      valor={man}
-                      onSalvar={(novoValor) => salvarEdicaoItem(novoValor, 'manobra', index)}
-                      onCancelar={cancelarEdicao}
-                    />
-                  ) : (
-                    <>
-                      <span className="text-gray-800">{man}</span>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => iniciarEdicao('manobra', index, man)}
-                          className="text-blue-600 hover:text-blue-700 p-1"
-                        >
-                          <span>✏️</span>
-                        </button>
-                        <button
-                          onClick={() => removerItem('manobra', index)}
-                          className="text-red-600 hover:text-red-700 p-1"
-                        >
-                          <span>🗑️</span>
-                        </button>
-                      </div>
-                    </>
-                  )}
+                <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                  <span className="text-gray-800">{man}</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => editarItem('manobra', index, man)}
+                      className="text-blue-600 hover:text-blue-700 p-1"
+                      title="Editar"
+                    >
+                      <span>✏️</span>
+                    </button>
+                    <button
+                      onClick={() => removerItem('manobra', index)}
+                      className="text-red-600 hover:text-red-700 p-1"
+                      title="Remover"
+                    >
+                      <span>🗑️</span>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
